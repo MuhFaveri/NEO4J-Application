@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Atores e Filmes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Cadastro de Atores e Filmes</h1>
+        <form id="cadastroAtor" class="mt-3">
+            <div class="form-group">
+                <label for="nomeAtor">Nome do Ator</label>
+                <input type="text" class="form-control" id="nomeAtor" placeholder="Digite o nome do ator">
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar Ator</button>
+        </form>
+
+        <form id="cadastroFilme" class="mt-3">
+            <div class="form-group">
+                <label for="tituloFilme">Título do Filme</label>
+                <input type="text" class="form-control" id="tituloFilme" placeholder="Digite o título do filme">
+            </div>
+            <button type="submit" class="btn btn-primary">Cadastrar Filme</button>
+        </form>
+
+        <form id="relacionar" class="mt-3">
+            <div class="form-group">
+                <label for="nomeAtorRelacionar">Nome do Ator</label>
+                <input type="text" class="form-control" id="nomeAtorRelacionar" placeholder="Digite o nome do ator">
+            </div>
+            <div class="form-group">
+                <label for="tituloFilmeRelacionar">Título do Filme</label>
+                <input type="text" class="form-control" id="tituloFilmeRelacionar" placeholder="Digite o título do filme">
+            </div>
+            <button type="submit" class="btn btn-primary">Relacionar Ator e Filme</button>
+        </form>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#cadastroAtor').submit(function(event) {
+                event.preventDefault();
+                var nomeAtor = $('#nomeAtor').val();
+                $.ajax({
+                    url: 'http://localhost:3000/atores',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ nome: nomeAtor }),
+                    success: function(response) {
+                        alert('Ator cadastrado com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao cadastrar ator: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#cadastroFilme').submit(function(event) {
+                event.preventDefault();
+                var tituloFilme = $('#tituloFilme').val();
+                $.ajax({
+                    url: 'http://localhost:3000/filmes',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ titulo: tituloFilme }),
+                    success: function(response) {
+                        alert('Filme cadastrado com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao cadastrar filme: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#relacionar').submit(function(event) {
+                event.preventDefault();
+                var nomeAtor = $('#nomeAtorRelacionar').val();
+                var tituloFilme = $('#tituloFilmeRelacionar').val();
+                $.ajax({
+                    url: 'http://localhost:3000/relacionar',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ nomeAtor: nomeAtor, tituloFilme: tituloFilme }),
+                    success: function(response) {
+                        alert('Relacionamento criado com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao criar relacionamento: ' + xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
