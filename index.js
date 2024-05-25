@@ -37,6 +37,15 @@ app.use(express.static(path.join(__dirname)));
 app.post('/atores', async (req, res) => {
     const { id, nome } = req.body;
     try {
+        const idCheckResult = await session.run(
+            'MATCH (a:Ator {id: $id}) RETURN a',
+            { id }
+        );
+
+        if (idCheckResult.records.length > 0) {
+            return res.status(400).send('ID do ator já cadastrado.');
+        }
+
         const result = await session.run(
             'CREATE (a:Ator {id: $id, nome: $nome}) RETURN a',
             { id, nome }
@@ -53,6 +62,15 @@ app.post('/atores', async (req, res) => {
 app.post('/filmes', async (req, res) => {
     const { id, titulo } = req.body;
     try {
+        const idCheckResult = await session.run(
+            'MATCH (f:Filme {id: $id}) RETURN f',
+            { id }
+        );
+
+        if (idCheckResult.records.length > 0) {
+            return res.status(400).send('ID do filme já cadastrado.');
+        }
+
         const result = await session.run(
             'CREATE (f:Filme {id: $id, titulo: $titulo}) RETURN f',
             { id, titulo }
@@ -142,6 +160,26 @@ app.delete('/filmes/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send('Erro ao remover filme');
+    }
+});
+
+// Rota para buscar todos os atores, filmes e relacionamentos
+app.get('/dados', async (req, res) => {
+    try {
+        const result = await session.run(
+            'MATCH (a:Ator)-[r:ATUOU_EM]->(f:Filme) RETURN a, r, f'
+        );
+
+        const dados = result.records.map(record => ({
+            ator: record.get('a').properties,
+            filme: record.get('f').properties,
+            relacionamento: record.get('r').type
+        }));
+
+        res.status(200).send(dados);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao buscar dados');
     }
 });
 

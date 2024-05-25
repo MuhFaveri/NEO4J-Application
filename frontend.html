@@ -10,6 +10,7 @@
 <body>
     <div class="container">
         <h1 class="mt-5">Cadastro de Atores e Filmes</h1>
+
         <form id="cadastroAtor" class="mt-3">
             <div class="form-group">
                 <label for="idAtor">ID do Ator</label>
@@ -85,10 +86,40 @@
             </div>
             <button type="submit" class="btn btn-danger">Remover Filme</button>
         </form>
+
+        <h2 class="mt-5">Dados Cadastrados</h2>
+        <div id="dadosCadastrados" class="mt-3"></div>
     </div>
 
     <script>
         $(document).ready(function() {
+            // Função para buscar e exibir dados
+            function carregarDados() {
+                $.ajax({
+                    url: 'http://localhost:3000/dados',
+                    type: 'GET',
+                    success: function(response) {
+                        var dadosHtml = '<ul class="list-group">';
+                        response.forEach(item => {
+                            dadosHtml += `<li class="list-group-item">
+                                <strong>Ator:</strong> ${item.ator.nome} (${item.ator.id})<br>
+                                <strong>Filme:</strong> ${item.filme.titulo} (${item.filme.id})<br>
+                                <strong>Relacionamento:</strong> ${item.relacionamento}
+                            </li>`;
+                        });
+                        dadosHtml += '</ul>';
+                        $('#dadosCadastrados').html(dadosHtml);
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao buscar dados: ' + xhr.responseText);
+                    }
+                });
+            }
+
+            // Carregar dados ao carregar a página
+            carregarDados();
+
+            // Formulário para cadastro de ator
             $('#cadastroAtor').submit(function(event) {
                 event.preventDefault();
                 var idAtor = $('#idAtor').val();
@@ -100,6 +131,7 @@
                     data: JSON.stringify({ id: idAtor, nome: nomeAtor }),
                     success: function(response) {
                         alert('Ator cadastrado com sucesso!');
+                        carregarDados(); // Recarregar dados após cadastro
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao cadastrar ator: ' + xhr.responseText);
@@ -107,6 +139,7 @@
                 });
             });
 
+            // Formulário para cadastro de filme
             $('#cadastroFilme').submit(function(event) {
                 event.preventDefault();
                 var idFilme = $('#idFilme').val();
@@ -118,6 +151,7 @@
                     data: JSON.stringify({ id: idFilme, titulo: tituloFilme }),
                     success: function(response) {
                         alert('Filme cadastrado com sucesso!');
+                        carregarDados(); // Recarregar dados após cadastro
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao cadastrar filme: ' + xhr.responseText);
@@ -125,6 +159,7 @@
                 });
             });
 
+            // Formulário para relacionar ator e filme
             $('#relacionar').submit(function(event) {
                 event.preventDefault();
                 var idAtor = $('#idAtorRelacionar').val();
@@ -136,6 +171,7 @@
                     data: JSON.stringify({ idAtor: idAtor, idFilme: idFilme }),
                     success: function(response) {
                         alert('Relacionamento criado com sucesso!');
+                        carregarDados(); // Recarregar dados após criar relacionamento
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao criar relacionamento: ' + xhr.responseText);
@@ -143,6 +179,7 @@
                 });
             });
 
+            // Formulário para atualizar ator
             $('#atualizarAtor').submit(function(event) {
                 event.preventDefault();
                 var idAtor = $('#idAtorAtualizar').val();
@@ -154,6 +191,7 @@
                     data: JSON.stringify({ novoNome: novoNome }),
                     success: function(response) {
                         alert('Ator atualizado com sucesso!');
+                        carregarDados(); // Recarregar dados após atualização
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao atualizar ator: ' + xhr.responseText);
@@ -161,6 +199,7 @@
                 });
             });
 
+            // Formulário para atualizar filme
             $('#atualizarFilme').submit(function(event) {
                 event.preventDefault();
                 var idFilme = $('#idFilmeAtualizar').val();
@@ -172,6 +211,7 @@
                     data: JSON.stringify({ novoTitulo: novoTitulo }),
                     success: function(response) {
                         alert('Filme atualizado com sucesso!');
+                        carregarDados(); // Recarregar dados após atualização
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao atualizar filme: ' + xhr.responseText);
@@ -179,6 +219,7 @@
                 });
             });
 
+            // Formulário para remover ator
             $('#removerAtor').submit(function(event) {
                 event.preventDefault();
                 var idAtor = $('#idAtorRemover').val();
@@ -187,6 +228,7 @@
                     type: 'DELETE',
                     success: function(response) {
                         alert('Ator removido com sucesso!');
+                        carregarDados(); // Recarregar dados após remoção
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao remover ator: ' + xhr.responseText);
@@ -194,6 +236,7 @@
                 });
             });
 
+            // Formulário para remover filme
             $('#removerFilme').submit(function(event) {
                 event.preventDefault();
                 var idFilme = $('#idFilmeRemover').val();
@@ -202,6 +245,7 @@
                     type: 'DELETE',
                     success: function(response) {
                         alert('Filme removido com sucesso!');
+                        carregarDados(); // Recarregar dados após remoção
                     },
                     error: function(xhr, status, error) {
                         alert('Erro ao remover filme: ' + xhr.responseText);
@@ -212,4 +256,3 @@
     </script>
 </body>
 </html>
- 
