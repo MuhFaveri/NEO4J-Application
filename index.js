@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const neo4j = require('neo4j-driver');
 const path = require('path');
-const cors = require('cors');  // Importar o pacote cors
+const cors = require('cors');
 
 // Configurações do Neo4j
 const uri = 'neo4j://localhost';
@@ -22,24 +22,24 @@ async function testConnection() {
     }
 }
 
-testConnection();  // Chama a função de teste de conexão
+testConnection(); // Chama a função de teste de conexão
 
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cors());  // Habilitar CORS para todas as rotas
+app.use(cors()); // Habilitar CORS para todas as rotas
 
 // Servir o HTML 
 app.use(express.static(path.join(__dirname)));
 
 // Rota para cadastrar um ator
 app.post('/atores', async (req, res) => {
-    const { nome } = req.body;
+    const { id, nome } = req.body;
     try {
         const result = await session.run(
-            'CREATE (a:Ator {nome: $nome}) RETURN a',
-            { nome }
+            'CREATE (a:Ator {id: $id, nome: $nome}) RETURN a',
+            { id, nome }
         );
         const ator = result.records[0].get(0);
         res.status(201).send(ator.properties);
@@ -51,11 +51,11 @@ app.post('/atores', async (req, res) => {
 
 // Rota para cadastrar um filme
 app.post('/filmes', async (req, res) => {
-    const { titulo } = req.body;
+    const { id, titulo } = req.body;
     try {
         const result = await session.run(
-            'CREATE (f:Filme {titulo: $titulo}) RETURN f',
-            { titulo }
+            'CREATE (f:Filme {id: $id, titulo: $titulo}) RETURN f',
+            { id, titulo }
         );
         const filme = result.records[0].get(0);
         res.status(201).send(filme.properties);
@@ -67,12 +67,12 @@ app.post('/filmes', async (req, res) => {
 
 // Rota para relacionar um ator a um filme
 app.post('/relacionar', async (req, res) => {
-    const { nomeAtor, tituloFilme } = req.body;
+    const { idAtor, idFilme } = req.body;
     try {
         const result = await session.run(
-            'MATCH (a:Ator {nome: $nomeAtor}), (f:Filme {titulo: $tituloFilme}) ' +
+            'MATCH (a:Ator {id: $idAtor}), (f:Filme {id: $idFilme}) ' +
             'CREATE (a)-[:ATUOU_EM]->(f) RETURN a, f',
-            { nomeAtor, tituloFilme }
+            { idAtor, idFilme }
         );
         res.status(201).send('Relacionamento criado com sucesso');
     } catch (error) {
@@ -81,8 +81,71 @@ app.post('/relacionar', async (req, res) => {
     }
 });
 
+// Rota para atualizar um ator
+app.put('/atores/:id', async (req, res) => {
+    const { id } = req.params;
+    const { novoNome } = req.body;
+    try {
+        const result = await session.run(
+            'MATCH (a:Ator {id: $id}) SET a.nome = $novoNome RETURN a',
+            { id, novoNome }
+        );
+        const ator = result.records[0].get(0);
+        res.status(200).send(ator.properties);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao atualizar ator');
+    }
+});
+
+// Rota para atualizar um filme
+app.put('/filmes/:id', async (req, res) => {
+    const { id } = req.params;
+    const { novoTitulo } = req.body;
+    try {
+        const result = await session.run(
+            'MATCH (f:Filme {id: $id}) SET f.titulo = $novoTitulo RETURN f',
+            { id, novoTitulo }
+        );
+        const filme = result.records[0].get(0);
+        res.status(200).send(filme.properties);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao atualizar filme');
+    }
+});
+
+// Rota para remover um ator
+app.delete('/atores/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await session.run(
+            'MATCH (a:Ator {id: $id}) DETACH DELETE a',
+            { id }
+        );
+        res.status(200).send('Ator removido com sucesso');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao remover ator');
+    }
+});
+
+// Rota para remover um filme
+app.delete('/filmes/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await session.run(
+            'MATCH (f:Filme {id: $id}) DETACH DELETE f',
+            { id }
+        );
+        res.status(200).send('Filme removido com sucesso');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Erro ao remover filme');
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
- 

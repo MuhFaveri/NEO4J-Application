@@ -12,6 +12,10 @@
         <h1 class="mt-5">Cadastro de Atores e Filmes</h1>
         <form id="cadastroAtor" class="mt-3">
             <div class="form-group">
+                <label for="idAtor">ID do Ator</label>
+                <input type="text" class="form-control" id="idAtor" placeholder="Digite o ID do ator">
+            </div>
+            <div class="form-group">
                 <label for="nomeAtor">Nome do Ator</label>
                 <input type="text" class="form-control" id="nomeAtor" placeholder="Digite o nome do ator">
             </div>
@@ -19,6 +23,10 @@
         </form>
 
         <form id="cadastroFilme" class="mt-3">
+            <div class="form-group">
+                <label for="idFilme">ID do Filme</label>
+                <input type="text" class="form-control" id="idFilme" placeholder="Digite o ID do filme">
+            </div>
             <div class="form-group">
                 <label for="tituloFilme">Título do Filme</label>
                 <input type="text" class="form-control" id="tituloFilme" placeholder="Digite o título do filme">
@@ -28,14 +36,54 @@
 
         <form id="relacionar" class="mt-3">
             <div class="form-group">
-                <label for="nomeAtorRelacionar">Nome do Ator</label>
-                <input type="text" class="form-control" id="nomeAtorRelacionar" placeholder="Digite o nome do ator">
+                <label for="idAtorRelacionar">ID do Ator</label>
+                <input type="text" class="form-control" id="idAtorRelacionar" placeholder="Digite o ID do ator">
             </div>
             <div class="form-group">
-                <label for="tituloFilmeRelacionar">Título do Filme</label>
-                <input type="text" class="form-control" id="tituloFilmeRelacionar" placeholder="Digite o título do filme">
+                <label for="idFilmeRelacionar">ID do Filme</label>
+                <input type="text" class="form-control" id="idFilmeRelacionar" placeholder="Digite o ID do filme">
             </div>
             <button type="submit" class="btn btn-primary">Relacionar Ator e Filme</button>
+        </form>
+
+        <form id="atualizarAtor" class="mt-3">
+            <div class="form-group">
+                <label for="idAtorAtualizar">ID do Ator a ser atualizado</label>
+                <input type="text" class="form-control" id="idAtorAtualizar" placeholder="ID atual do ator">
+            </div>
+            <div class="form-group">
+                <label for="novoNomeAtor">Novo Nome do Ator</label>
+                <input type="text" class="form-control" id="novoNomeAtor" placeholder="Novo nome do ator">
+            </div>
+            <button type="submit" class="btn btn-warning">Atualizar Ator</button>
+        </form>
+
+        <form id="atualizarFilme" class="mt-3">
+            <div class="form-group">
+                <label for="idFilmeAtualizar">ID do Filme a ser atualizado</label>
+                <input type="text" class="form-control" id="idFilmeAtualizar" placeholder="ID atual do filme">
+            </div>
+            <div class="form-group">
+                <label for="novoTituloFilme">Novo Título do Filme</label>
+                <input type="text" class="form-control" id="novoTituloFilme" placeholder="Novo título do filme">
+            </div>
+            <button type="submit" class="btn btn-warning">Atualizar Filme</button>
+        </form>
+
+        <form id="removerAtor" class="mt-3">
+            <div class="form-group">
+                <label for="idAtorRemover">ID do Ator a ser removido</label>
+                <input type="text" class="form-control" id="idAtorRemover" placeholder="ID do ator">
+            </div>
+            <button type="submit" class="btn btn-danger">Remover Ator</button>
+        </form>
+
+        <form id="removerFilme" class="mt-3">
+            <div class="form-group">
+                <label for="idFilmeRemover">ID do Filme a ser removido</label>
+                <input type="text" class="form-control" id="idFilmeRemover" placeholder="ID do filme">
+            </div>
+            <button type="submit" class="btn btn-danger">Remover Filme</button>
         </form>
     </div>
 
@@ -43,12 +91,13 @@
         $(document).ready(function() {
             $('#cadastroAtor').submit(function(event) {
                 event.preventDefault();
+                var idAtor = $('#idAtor').val();
                 var nomeAtor = $('#nomeAtor').val();
                 $.ajax({
                     url: 'http://localhost:3000/atores',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ nome: nomeAtor }),
+                    data: JSON.stringify({ id: idAtor, nome: nomeAtor }),
                     success: function(response) {
                         alert('Ator cadastrado com sucesso!');
                     },
@@ -60,12 +109,13 @@
 
             $('#cadastroFilme').submit(function(event) {
                 event.preventDefault();
+                var idFilme = $('#idFilme').val();
                 var tituloFilme = $('#tituloFilme').val();
                 $.ajax({
                     url: 'http://localhost:3000/filmes',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ titulo: tituloFilme }),
+                    data: JSON.stringify({ id: idFilme, titulo: tituloFilme }),
                     success: function(response) {
                         alert('Filme cadastrado com sucesso!');
                     },
@@ -77,13 +127,13 @@
 
             $('#relacionar').submit(function(event) {
                 event.preventDefault();
-                var nomeAtor = $('#nomeAtorRelacionar').val();
-                var tituloFilme = $('#tituloFilmeRelacionar').val();
+                var idAtor = $('#idAtorRelacionar').val();
+                var idFilme = $('#idFilmeRelacionar').val();
                 $.ajax({
                     url: 'http://localhost:3000/relacionar',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ nomeAtor: nomeAtor, tituloFilme: tituloFilme }),
+                    data: JSON.stringify({ idAtor: idAtor, idFilme: idFilme }),
                     success: function(response) {
                         alert('Relacionamento criado com sucesso!');
                     },
@@ -92,7 +142,74 @@
                     }
                 });
             });
+
+            $('#atualizarAtor').submit(function(event) {
+                event.preventDefault();
+                var idAtor = $('#idAtorAtualizar').val();
+                var novoNome = $('#novoNomeAtor').val();
+                $.ajax({
+                    url: 'http://localhost:3000/atores/' + idAtor,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ novoNome: novoNome }),
+                    success: function(response) {
+                        alert('Ator atualizado com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao atualizar ator: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#atualizarFilme').submit(function(event) {
+                event.preventDefault();
+                var idFilme = $('#idFilmeAtualizar').val();
+                var novoTitulo = $('#novoTituloFilme').val();
+                $.ajax({
+                    url: 'http://localhost:3000/filmes/' + idFilme,
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ novoTitulo: novoTitulo }),
+                    success: function(response) {
+                        alert('Filme atualizado com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao atualizar filme: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#removerAtor').submit(function(event) {
+                event.preventDefault();
+                var idAtor = $('#idAtorRemover').val();
+                $.ajax({
+                    url: 'http://localhost:3000/atores/' + idAtor,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert('Ator removido com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao remover ator: ' + xhr.responseText);
+                    }
+                });
+            });
+
+            $('#removerFilme').submit(function(event) {
+                event.preventDefault();
+                var idFilme = $('#idFilmeRemover').val();
+                $.ajax({
+                    url: 'http://localhost:3000/filmes/' + idFilme,
+                    type: 'DELETE',
+                    success: function(response) {
+                        alert('Filme removido com sucesso!');
+                    },
+                    error: function(xhr, status, error) {
+                        alert('Erro ao remover filme: ' + xhr.responseText);
+                    }
+                });
+            });
         });
     </script>
 </body>
 </html>
+ 
